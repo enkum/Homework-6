@@ -1,0 +1,138 @@
+---
+title: "HW5 : Distribution"
+author:
+- Ebenezer Nkum^[enkum@miners.utep.edu]
+- University of Texas at El Paso (UTEP)
+date: "`r format(Sys.time(), '%B %d, %Y')`"
+output:
+  pdf_document:
+    keep_tex: yes
+    fig_caption: yes
+    latex_engine: pdflatex
+    number_sections: yes
+    toc: yes
+    toc_depth: 4
+  html_document:
+    toc: yes
+    toc_depth: '4'
+    df_print: paged
+geometry: margin=1in
+fontsize: 11pt
+spacing: single
+header-includes:
+- \usepackage{amsmath}
+- \usepackage{amssymb}
+- \usepackage{amsfonts}
+- \usepackage{amsthm}
+- \usepackage{fancyhdr}
+- \pagestyle{fancy}
+- \fancyhf{}
+- "\\rhead{DS 6339-- Data Visualization}"
+- \cfoot{\thepage}
+- \usepackage{algorithm}
+- \usepackage[noend]{algpseudocode}
+- "\\DeclareUnicodeCharacter{2212}{\\ensuremath{-}}"
+editor_options: 
+  chunk_output_type: inline
+---
+
+<!-- QUESTION ONE: WHAT --> 
+\noindent\rule{17.5cm}{0.8pt}
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, echo=FALSE, include=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(dplyr)
+library(plotly)
+library(hrbrthemes)
+library(kableExtra)
+library(knitr)
+library(tinytex)
+library(tibble)
+library(ggrepel)
+library("reshape2") 
+library("patchwork")
+```
+
+
+
+# Load data
+```{r Load data}
+# Load data 
+dat <- read.csv("serialdat.csv", header = T)
+```
+
+# Data
+
+The data contains information about gene variant transcriptions. There are three replications of the variant transcriptions and a final column where the three replications were averaged. The categorical variables included are the SUMOver (which is classes of genes - S#V# format).
+
+
+# Step 1: Inspect data, assess it for completeness, good formatting, and any errors
+## Inspect data
+```{r inspect data, echo=FALSE}
+
+head(dat) ; dim(dat)
+
+```
+
+## Remove the replication number that follows the S#V# groups
+```{r , message=FALSE}
+dat0 <- dat[-43,] %>% select(-X10.x.copies) %>% 
+                mutate(SUMOvar = sapply(str_split(SUMOvar,"-",),'[',1))
+
+dat0 <- dat0 %>% mutate(SUMOvar = substr(SUMOvar,1,2))
+
+
+head(dat0)
+```
+
+# Visualizing distribution
+
+# Overall distribution among each group using the average replications
+
+```{r, fig.width=10}
+
+par(mfrow=c(2,2))
+p <- ggplot(dat0, aes(x= Replicate.1, y=Replicate.2, color = SUMOvar)) +
+      geom_point()+
+      theme_classic() +
+      ggtitle("Relationship between Rep1\n and Rep2 by Classes of Gene")+
+      theme(legend.position = "none")
+
+
+
+p1 <- ggplot(dat0, aes(x= Replicate.1, y=Replicate.3, color = SUMOvar)) +
+      geom_point()+
+      theme_classic() +
+      ggtitle("Relationship between Rep1\n and Rep3 by Classes of Gene")+
+      theme(legend.position = "none")
+
+
+p2 <- ggplot(dat0, aes(x= Replicate.2, y=Replicate.3, color = SUMOvar)) +
+      geom_point()+
+      theme_classic() +
+      ggtitle("Relationship between Rep2\n and Rep3 by Classes of Gene") 
+ 
+p2$labels$colour<-"Classes \n of Gene"
+
+p+p1+p2
+
+```
+Upon examining the associations between the three transcription entities, it is apparent that there exists a significant degree of variability amongst the s2 and s3 gene classes in relation to the association between replication 1 and 2. A similar observation can be made regarding the correlation between replication 1 and replication 3. However, it is worth noting that there is very minimal variability or nearly perfect association with regards to the association between replication 2 and replication 3.
+
+
+
+
+
+
+
+
+
+
+
+
+
