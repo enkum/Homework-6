@@ -1,1 +1,1 @@
-# This is homework 6 about distribution
+# This is homework 6 about association
